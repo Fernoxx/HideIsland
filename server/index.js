@@ -59,6 +59,8 @@ function findOpenRoom() {
 app.use(express.static(path.join(__dirname, '..', 'public')));
 // Serve the three.js ES module build so the client can import it offline.
 app.use('/vendor/three', express.static(path.join(__dirname, '..', 'node_modules', 'three', 'build')));
+// Serve three.js addons (Sky, etc.) used by the renderer.
+app.use('/vendor/three-addons', express.static(path.join(__dirname, '..', 'node_modules', 'three', 'examples', 'jsm')));
 app.get('/health', (_req, res) => res.json({ ok: true, rooms: rooms.size }));
 
 // ----- Socket handlers ----------------------------------------------------
