@@ -1,0 +1,187 @@
+:root {
+  --ocean: #0a4d68;
+  --ocean-deep: #053246;
+  --accent: #4fc3f7;
+  --gold: #ffd54f;
+  --panel: rgba(8, 28, 40, 0.92);
+  --panel-light: rgba(255, 255, 255, 0.08);
+  --text: #eaf6fb;
+  --danger: #e57373;
+  --ok: #81c784;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at 50% 30%, #0a4d68, #02141d 80%);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.hidden { display: none !important; }
+.muted { opacity: 0.7; font-weight: normal; font-size: 0.85em; }
+
+/* ===== Screens / cards ===== */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 20;
+  backdrop-filter: blur(3px);
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--panel-light);
+  border-radius: 18px;
+  padding: 28px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+.card.wide { max-width: 520px; text-align: left; }
+
+h1 { font-size: 2rem; margin-bottom: 8px; }
+.tagline { opacity: 0.85; margin-bottom: 20px; line-height: 1.5; font-size: 0.95rem; }
+
+label { display: block; text-align: left; font-size: 0.85rem; opacity: 0.8; margin-bottom: 6px; }
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-light);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text);
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+input:focus { outline: 2px solid var(--accent); }
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  transition: transform 0.05s, filter 0.15s;
+}
+button:active { transform: translateY(1px); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.primary { background: linear-gradient(135deg, var(--accent), #0288d1); width: 100%; }
+.primary:hover:not(:disabled) { filter: brightness(1.1); }
+.ghost { background: var(--panel-light); }
+.x-login { background: #111; width: 100%; margin-top: 10px; border: 1px solid #333; }
+.hint { font-size: 0.8rem; opacity: 0.7; margin-top: 12px; min-height: 1em; }
+
+/* ===== Lobby ===== */
+.lobby-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.balances { display: flex; gap: 8px; align-items: center; font-weight: 600; }
+.balances span { font-size: 0.9rem; }
+.lobby-info { opacity: 0.85; margin-bottom: 14px; font-size: 0.9rem; }
+.player-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; max-height: 40vh; overflow-y: auto; }
+.player-list li {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--panel-light); padding: 10px 12px; border-radius: 10px;
+}
+.player-list .dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+.player-list .pname { flex: 1; font-weight: 600; }
+.player-list .pstatus { font-size: 0.8rem; opacity: 0.8; }
+.player-list .ready { color: var(--ok); }
+.lobby-actions { display: flex; gap: 10px; }
+.lobby-actions .primary { flex: 1; }
+
+/* ===== HUD ===== */
+#hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+.hud-top {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 96vw;
+}
+.hud-pill {
+  background: var(--panel); border: 1px solid var(--panel-light);
+  padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;
+}
+.hud-log {
+  position: absolute; bottom: 12px; left: 12px;
+  display: flex; flex-direction: column; gap: 4px; max-width: 60vw;
+}
+.hud-log div {
+  background: var(--panel); padding: 5px 10px; border-radius: 8px;
+  font-size: 0.8rem; animation: fade 0.3s; max-width: max-content;
+}
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+#minimap {
+  position: absolute; top: 12px; right: 12px;
+  border: 2px solid var(--panel-light); border-radius: 8px;
+  background: rgba(2, 20, 29, 0.7);
+}
+
+/* ===== Joystick ===== */
+#joystick {
+  position: absolute; bottom: 30px; left: 30px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08); border: 2px solid var(--panel-light);
+  pointer-events: auto; touch-action: none;
+}
+#joystick-knob {
+  position: absolute; top: 50%; left: 50%;
+  width: 52px; height: 52px; margin: -26px 0 0 -26px;
+  border-radius: 50%; background: var(--accent); opacity: 0.85;
+}
+
+/* ===== Modals ===== */
+.modal {
+  position: fixed; inset: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6); padding: 16px;
+}
+.modal-card {
+  background: var(--panel); border: 1px solid var(--panel-light);
+  border-radius: 16px; padding: 20px; width: 100%; max-width: 460px; max-height: 86vh; overflow-y: auto;
+}
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.close { background: transparent; font-size: 1.1rem; padding: 4px 8px; }
+.shop-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.tab { background: var(--panel-light); flex: 1; }
+.tab.active { background: var(--accent); color: #00141d; }
+.shop-items { display: flex; flex-direction: column; gap: 8px; }
+.shop-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--panel-light); padding: 10px 12px; border-radius: 10px;
+}
+.shop-item .si-swatch { width: 26px; height: 26px; border-radius: 6px; flex-shrink: 0; }
+.shop-item .si-info { flex: 1; }
+.shop-item .si-name { font-weight: 600; }
+.shop-item .si-meta { font-size: 0.78rem; opacity: 0.75; }
+.shop-item button { padding: 8px 14px; font-size: 0.85rem; }
+.shop-item .owned { color: var(--ok); font-size: 0.85rem; font-weight: 600; }
+
+.wallet-body { display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem; }
+.wallet-row { display: flex; justify-content: space-between; background: var(--panel-light); padding: 10px 12px; border-radius: 10px; }
+.wallet-addr { word-break: break-all; font-family: monospace; font-size: 0.78rem; opacity: 0.8; }
+
+@media (max-width: 480px) {
+  .card { padding: 20px; }
+  h1 { font-size: 1.6rem; }
+}
