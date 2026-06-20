@@ -42,6 +42,27 @@ npm start
 
 `npm run dev` runs with `--watch` for auto-reload during development.
 
+## Deployment ⚠️ (read this)
+
+Hide Island is a **persistent real-time Node server**: it keeps game rooms in
+memory, runs physics loops on a timer, and holds long-lived **WebSocket
+(Socket.IO)** connections.
+
+**It cannot run on plain Vercel / Netlify / GitHub Pages** — those are
+static/serverless hosts. They don't run a long-lived Node process, so
+`/socket.io/...` returns 404, the client can't connect, and the buttons appear
+dead. **Deploy to a host that runs a real Node server instead:**
+
+| Host | How |
+| --- | --- |
+| **Render** (free, easiest) | New + → **Blueprint** → pick this repo (uses `render.yaml`). Or: New Web Service → Build `npm install`, Start `npm start`, Health check `/health`. |
+| **Railway** | New Project → Deploy from repo. It auto-detects `npm start` (or uses the `Dockerfile`). |
+| **Fly.io** | `fly launch` (uses the included `Dockerfile`). |
+| **Any container host** | Build the `Dockerfile` and run it; it listens on `$PORT`. |
+
+All of these read `PORT` from the environment automatically. No build step is
+required beyond `npm install`.
+
 ## How to play
 
 1. Enter a name (or "Connect with X" once Privy is configured) → you join a lobby.

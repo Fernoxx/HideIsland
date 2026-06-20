@@ -1,0 +1,18 @@
+# Render.com Blueprint — deploys Hide Island as a persistent Node web service.
+# In Render: New + → "Blueprint" → connect this repo → it reads this file.
+# (Render runs a long-lived Node process, so Socket.IO / WebSockets work.)
+services:
+  - type: web
+    name: hide-island
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Wallet runs in mock mode unless you set these (see .env.example).
+      - key: WALLET_MODE
+        value: mock
