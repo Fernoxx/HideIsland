@@ -12,6 +12,11 @@ Ocean  ──►  Islands (5–6)  ──►  Treasure on 1–2 islands  ──�
 
 ## Features
 
+- **Real 3D world (three.js)** — animated ocean with rolling waves, 3D islands
+  (sand, grassy domes, palm trees), 3D player avatars with floating name labels,
+  glowing treasure chests, dynamic sun + soft shadows, fog, and a smooth
+  follow-camera. The 2D server simulation is mapped onto the 3D ground plane
+  (`server.x → X`, `server.y → Z`) so no server changes were needed.
 - **Authoritative multiplayer server** (Node + Socket.IO) — the server runs the
   simulation; clients render and send input. No client-side cheating of positions.
 - **Procedural map** each match: 5–6 non-overlapping islands, ocean spawns,
@@ -71,7 +76,8 @@ public/
     main.js              Client orchestration + game loop
     net.js               Socket.IO wrapper
     input.js             WASD + touch joystick
-    render.js            Canvas renderer + minimap
+    render3d.js          three.js 3D scene (ocean, islands, avatars, chests, camera)
+    render.js            Shared costume colors + 2D minimap overlay
     ui.js                Screens, lobby, shop, wallet modals
 ```
 

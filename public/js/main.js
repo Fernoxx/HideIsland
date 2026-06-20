@@ -1,7 +1,8 @@
 // Entry point: wires login, lobby, networking and the render/input loop.
 import { socket, request, on, emit } from './net.js';
 import { initInput, getMoveVector } from './input.js';
-import { resizeCanvas, render, renderMinimap } from './render.js';
+import { renderMinimap } from './render.js';
+import { initRenderer, buildWorld, syncPlayers, syncTreasures, renderFrame } from './render3d.js';
 import * as ui from './ui.js';
 
 const $ = (id) => document.getElementById(id);
@@ -25,8 +26,7 @@ const state = {
 initInput();
 ui.initModalCloses();
 ui.initShopTabs();
-resizeCanvas(canvas);
-window.addEventListener('resize', () => resizeCanvas(canvas));
+initRenderer(canvas); // three.js scene (handles its own resize)
 ui.showScreen('login');
 
 socket.on('connect', () => { state.selfId = socket.id; });
@@ -93,6 +93,7 @@ on('matchStart', (data) => {
   state.pot = data.pot;
   state.players = data.players;
   state.treasureMarkers = [];
+  buildWorld(state); // construct the 3D islands/ocean for this match
   ui.showScreen(null); // hide all screens, show HUD
   ui.setHud({ pot: data.pot, treasureCount: data.treasureCount, gems: state.gems });
   ui.logEvent('🚣 The hunt begins! Find the treasure first.');
@@ -138,7 +139,9 @@ function loop(ts) {
       emit('input', getMoveVector());
       lastSent = ts;
     }
-    render(canvas, state);
+    syncPlayers(state);
+    syncTreasures(state);
+    renderFrame(state);
     renderMinimap(minimap, state);
   }
   requestAnimationFrame(loop);
