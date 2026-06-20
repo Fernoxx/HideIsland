@@ -1,0 +1,29 @@
+{
+  "name": "hide-island",
+  "version": "0.1.0",
+  "description": "Hide Island - a real-time multiplayer treasure-hunt battle on hidden islands. Bet tokens, race to the hidden treasure, win the pot and gems.",
+  "type": "commonjs",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "three": "^0.184.0"
+  },
+  "keywords": [
+    "game",
+    "multiplayer",
+    "treasure",
+    "socket.io",
+    "solana",
+    "web3"
+  ],
+  "license": "MIT"
+}

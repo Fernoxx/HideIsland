@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Hide Island 🏝️</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Game canvas (under the UI) -->
+  <canvas id="game"></canvas>
+
+  <!-- HUD shown during a match -->
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <div class="hud-pill" id="hud-timer">⏱ --</div>
+      <div class="hud-pill" id="hud-pot">🪙 Pot: 0</div>
+      <div class="hud-pill" id="hud-treasures">🗺️ Treasures: ?</div>
+      <div class="hud-pill" id="hud-gems">💎 0</div>
+    </div>
+    <div class="hud-log" id="hud-log"></div>
+    <!-- Minimap -->
+    <canvas id="minimap" width="160" height="160"></canvas>
+    <!-- Touch joystick (mobile) -->
+    <div id="joystick" class="hidden">
+      <div id="joystick-knob"></div>
+    </div>
+  </div>
+
+  <!-- ===== Screens ===== -->
+
+  <!-- Login screen -->
+  <section id="screen-login" class="screen">
+    <div class="card">
+      <h1>🏝️ Hide Island</h1>
+      <p class="tagline">Race rivals across hidden islands. Find the treasure first.<br />Bet your tokens — winner takes the pot.</p>
+      <label>Pick a name</label>
+      <input id="login-name" type="text" maxlength="16" placeholder="Captain..." />
+      <button id="btn-login" class="primary">Enter as Guest</button>
+      <button id="btn-login-x" class="x-login">Connect with X (Privy)</button>
+      <p class="hint" id="login-hint"></p>
+    </div>
+  </section>
+
+  <!-- Lobby screen -->
+  <section id="screen-lobby" class="screen hidden">
+    <div class="card wide">
+      <div class="lobby-head">
+        <h2>Lobby</h2>
+        <div class="balances">
+          <span id="lobby-token">🪙 0</span>
+          <span id="lobby-gems">💎 0</span>
+          <button id="btn-shop" class="ghost">🛒 Shop</button>
+          <button id="btn-wallet" class="ghost">👛 Wallet</button>
+        </div>
+      </div>
+      <p class="lobby-info">
+        Bet to join: <b id="lobby-bet">10</b> tokens &nbsp;•&nbsp;
+        Pot: <b id="lobby-pot">0</b> &nbsp;•&nbsp;
+        Need <b id="lobby-min">2</b>+ players ready
+      </p>
+      <ul id="player-list" class="player-list"></ul>
+      <div class="lobby-actions">
+        <button id="btn-ready" class="primary">Ready & Bet</button>
+        <button id="btn-leave" class="ghost">Leave</button>
+      </div>
+      <p class="hint" id="lobby-hint">Waiting for players...</p>
+    </div>
+  </section>
+
+  <!-- Results overlay -->
+  <section id="screen-result" class="screen hidden">
+    <div class="card">
+      <h2 id="result-title">Match Over</h2>
+      <p id="result-body"></p>
+      <button id="btn-back-lobby" class="primary">Back to Lobby</button>
+    </div>
+  </section>
+
+  <!-- Shop modal -->
+  <div id="modal-shop" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>🛒 Shop &nbsp;<span class="muted" id="shop-gems">💎 0</span></h3>
+        <button class="close" data-close="modal-shop">✕</button>
+      </div>
+      <div class="shop-tabs">
+        <button class="tab active" data-tab="weapons">Weapons</button>
+        <button class="tab" data-tab="costumes">Costumes</button>
+      </div>
+      <div id="shop-items" class="shop-items"></div>
+    </div>
+  </div>
+
+  <!-- Wallet modal -->
+  <div id="modal-wallet" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>👛 Wallet</h3>
+        <button class="close" data-close="modal-wallet">✕</button>
+      </div>
+      <div id="wallet-body" class="wallet-body"></div>
+    </div>
+  </div>
+
+  <!-- socket.io client is served by the server automatically -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- three.js is served from the local node_modules build -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/vendor/three/three.module.js"
+    }
+  }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
