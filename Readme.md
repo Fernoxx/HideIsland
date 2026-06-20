@@ -56,7 +56,7 @@ dead. **Deploy to a host that runs a real Node server instead:**
 | Host | How |
 | --- | --- |
 | **Render** (free, easiest) | New + → **Blueprint** → pick this repo (uses `render.yaml`). Or: New Web Service → Build `npm install`, Start `npm start`, Health check `/health`. |
-| **Railway** | New Project → Deploy from repo. It auto-detects `npm start` (or uses the `Dockerfile`). |
+| **Railway** | New Project → **Deploy from GitHub repo** → pick this repo. It builds the `Dockerfile` and reads `railway.json`. Then **Settings → Networking → Generate Domain** to get a public URL. |
 | **Fly.io** | `fly launch` (uses the included `Dockerfile`). |
 | **Any container host** | Build the `Dockerfile` and run it; it listens on `$PORT`. |
 
