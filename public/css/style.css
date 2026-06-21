@@ -43,17 +43,21 @@ html, body {
   justify-content: center;
   padding: 16px;
   z-index: 20;
-  backdrop-filter: blur(3px);
+  /* Subtle vignette so menu cards pop over the live 3D wallpaper without
+     hiding it. */
+  background: radial-gradient(circle at 50% 45%, rgba(2, 20, 29, 0.15), rgba(2, 12, 18, 0.72) 95%);
 }
 
 .card {
-  background: var(--panel);
-  border: 1px solid var(--panel-light);
+  background: rgba(8, 28, 40, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 18px;
   padding: 28px;
   width: 100%;
   max-width: 380px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
   text-align: center;
 }
 .card.wide { max-width: 520px; text-align: left; }

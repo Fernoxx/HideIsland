@@ -4,6 +4,7 @@
 import { socket, request, on, emit } from './net.js';
 import { initInput, getMoveVector } from './input.js';
 import { renderMinimap } from './render.js';
+import { initDemo, tickDemo } from './demo.js';
 import * as ui from './ui.js';
 
 const $ = (id) => document.getElementById(id);
@@ -41,6 +42,22 @@ async function ensureRenderer() {
   return r3d;
 }
 
+// ---- Live wallpaper (attract mode) ----
+// A cinematic, server-free demo of the game runs behind the homepage/lobby.
+let demoActive = false;
+let demoState = null;
+function enterWallpaper() {
+  if (!r3d) return;
+  demoState = initDemo();
+  r3d.buildWorld(demoState);
+  r3d.setCinematic(true);
+  demoActive = true;
+}
+function exitWallpaper() {
+  demoActive = false;
+  if (r3d) r3d.setCinematic(false);
+}
+
 // ---- Boot ----
 // Attach all UI handlers FIRST so the buttons always respond, then warm up the
 // renderer in the background.
@@ -50,7 +67,7 @@ ui.initShopTabs();
 wireHandlers();
 wireServerEvents();
 ui.showScreen('login');
-ensureRenderer(); // non-blocking preload
+ensureRenderer().then(() => enterWallpaper()); // start the live wallpaper
 
 socket.on('connect', () => { state.selfId = socket.id; });
 socket.on('connect_error', (err) => {
@@ -131,6 +148,10 @@ function wireServerEvents() {
     $('lobby-hint').textContent = `Starting in ${data.seconds}...`;
   });
 
+  on('countdownCancelled', (data) => {
+    $('lobby-hint').textContent = data.reason || 'Countdown cancelled — ready up again.';
+  });
+
   on('matchStart', async (data) => {
     state.inMatch = true;
     state.world = data.world;
@@ -140,7 +161,10 @@ function wireServerEvents() {
     state.players = data.players;
     state.treasureMarkers = [];
     const renderer = await ensureRenderer();
-    if (renderer) renderer.buildWorld(state);
+    if (renderer) {
+      exitWallpaper(); // switch from cinematic wallpaper to the PUBG match view
+      renderer.buildWorld(state);
+    }
     ui.showScreen(null); // hide all screens, show HUD
     ui.setHud({ pot: data.pot, treasureCount: data.treasureCount, gems: state.gems });
     ui.logEvent('🚣 The hunt begins! Find the treasure first.');
@@ -173,6 +197,7 @@ function wireServerEvents() {
         `Gems collected: 💎 <b>${data.gemsWon}</b>` +
         (won ? '<br><br>The pot and gems are yours. 🎉' : '');
     ui.showScreen('result');
+    enterWallpaper(); // bring the live wallpaper back behind the menus
   });
 
   on('errorMsg', (data) => { $('lobby-hint').textContent = data.message; });
@@ -192,6 +217,12 @@ function loop(ts) {
       r3d.renderFrame(state);
     }
     renderMinimap(minimap, state);
+  } else if (demoActive && r3d && demoState) {
+    // Homepage/lobby live wallpaper.
+    tickDemo();
+    r3d.syncPlayers(demoState);
+    r3d.syncTreasures(demoState);
+    r3d.renderFrame(demoState);
   }
   requestAnimationFrame(loop);
 }

@@ -21,6 +21,10 @@ const playerGroup = new THREE.Group();
 const playerMeshes = new Map(); // id -> entry
 const treasureMeshes = new Map(); // key -> mesh
 
+// Camera mode: cinematic orbit (homepage wallpaper) vs PUBG follow (in match).
+let cinematic = false;
+export function setCinematic(v) { cinematic = v; }
+
 // Smoothed camera rig state (PUBG over-the-shoulder).
 let camYaw = 0;
 const camPosV = new THREE.Vector3(1500, 300, 1900);
@@ -408,31 +412,39 @@ export function renderFrame(state) {
     if (chest.userData.spin) chest.userData.spin.rotation.x += dt * 1.6;
   }
 
-  // ---- PUBG over-the-shoulder camera ----
-  const me = playerMeshes.get(state.selfId);
-  if (me) {
-    camYaw = lerpAngle(camYaw, me.yaw, smooth(dt, 6));
-    const fx = Math.sin(camYaw), fz = Math.cos(camYaw); // forward
-    const rx = Math.cos(camYaw), rz = -Math.sin(camYaw); // right
-    const p = me.group.position;
-
-    const DIST = 240, HEIGHT = 135, SIDE = 55, AHEAD = 160, LOOK_H = 48;
-    _v1.set(
-      p.x - fx * DIST + rx * SIDE,
-      HEIGHT,
-      p.z - fz * DIST + rz * SIDE
-    );
-    camPosV.lerp(_v1, smooth(dt, 8));
-    camPosV.y = Math.max(camPosV.y, 36); // never dip under the water
-    camera.position.copy(camPosV);
-
-    _v2.set(p.x + fx * AHEAD + rx * SIDE * 0.4, LOOK_H, p.z + fz * AHEAD + rz * SIDE * 0.4);
-    camLookV.lerp(_v2, smooth(dt, 8));
+  if (cinematic) {
+    // ---- Cinematic slow-orbit camera (homepage live wallpaper) ----
+    const cx = worldSize.width / 2, cz = worldSize.height / 2;
+    const radius = Math.min(worldSize.width, worldSize.height) * 0.62;
+    const ang = t * 0.06;
+    camera.position.set(cx + Math.cos(ang) * radius, 760, cz + Math.sin(ang) * radius);
+    camLookV.lerp(_v1.set(cx, 30, cz), smooth(dt, 3));
     camera.lookAt(camLookV);
+    sun.position.set(cx + 400, 900, cz + 200);
+    sun.target.position.set(cx, 0, cz);
+  } else {
+    // ---- PUBG over-the-shoulder camera ----
+    const me = playerMeshes.get(state.selfId);
+    if (me) {
+      camYaw = lerpAngle(camYaw, me.yaw, smooth(dt, 6));
+      const fx = Math.sin(camYaw), fz = Math.cos(camYaw); // forward
+      const rx = Math.cos(camYaw), rz = -Math.sin(camYaw); // right
+      const p = me.group.position;
 
-    // Keep sun + shadow frustum centered on the player.
-    sun.position.copy(p).addScaledVector(sunVec, 900);
-    sun.target.position.copy(p);
+      const DIST = 240, HEIGHT = 135, SIDE = 55, AHEAD = 160, LOOK_H = 48;
+      _v1.set(p.x - fx * DIST + rx * SIDE, HEIGHT, p.z - fz * DIST + rz * SIDE);
+      camPosV.lerp(_v1, smooth(dt, 8));
+      camPosV.y = Math.max(camPosV.y, 36); // never dip under the water
+      camera.position.copy(camPosV);
+
+      _v2.set(p.x + fx * AHEAD + rx * SIDE * 0.4, LOOK_H, p.z + fz * AHEAD + rz * SIDE * 0.4);
+      camLookV.lerp(_v2, smooth(dt, 8));
+      camera.lookAt(camLookV);
+
+      // Keep sun + shadow frustum centered on the player.
+      sun.position.copy(p).addScaledVector(sunVec, 900);
+      sun.target.position.copy(p);
+    }
   }
 
   animateOcean(t);

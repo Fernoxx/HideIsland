@@ -40,8 +40,30 @@ class Room {
 
   addPlayer(player) {
     this.players.set(player.id, player);
+    // If someone joins during the pre-match countdown, cancel it so the
+    // newcomer gets a chance to ready up and bet before the match begins.
+    if (this.state === STATE.COUNTDOWN) {
+      this._cancelCountdown();
+    }
     // Latecomers joining a match in progress just wait in spectate-style lobby.
     this._emitLobby();
+  }
+
+  // Abort a running countdown and return to the lobby, refunding any bets.
+  _cancelCountdown() {
+    if (this.state !== STATE.COUNTDOWN) return;
+    for (const p of this.players.values()) {
+      if (p.bet > 0) {
+        this.economy.credit(p.id, p.bet);
+        p.bet = 0;
+      }
+      p.ready = false;
+    }
+    this.pot = 0;
+    this.state = STATE.LOBBY;
+    this._lastCountdownSec = null;
+    this._stopLoop();
+    this.broadcast('countdownCancelled', { reason: 'A new player joined.' });
   }
 
   removePlayer(id) {

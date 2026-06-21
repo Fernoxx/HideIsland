@@ -45,14 +45,17 @@ function makeRoom() {
   return room;
 }
 
-// Find an open lobby or spin up a new room.
+// Find an open lobby or spin up a new room. Prefer the JOINABLE room with the
+// most players so people testing together reliably land in the SAME match.
 function findOpenRoom() {
+  let best = null;
   for (const room of rooms.values()) {
-    if (room.state === Room.STATE.LOBBY && room.count < C.MAX_PLAYERS) {
-      return room;
-    }
+    const joinable =
+      (room.state === Room.STATE.LOBBY || room.state === Room.STATE.COUNTDOWN) &&
+      room.count < C.MAX_PLAYERS;
+    if (joinable && (!best || room.count > best.count)) best = room;
   }
-  return makeRoom();
+  return best || makeRoom();
 }
 
 // ----- Static client ------------------------------------------------------
@@ -66,6 +69,7 @@ app.get('/health', (_req, res) => res.json({ ok: true, rooms: rooms.size }));
 // ----- Socket handlers ----------------------------------------------------
 io.on('connection', (socket) => {
   let room = null;
+  console.log(`[conn] connected ${socket.id.slice(0, 5)} (total clients: ${io.engine.clientsCount})`);
 
   const myWalletId = () => socketWallet.get(socket.id);
 
@@ -127,6 +131,7 @@ io.on('connection', (socket) => {
       weapon: owned.weapons.includes(profile.weapon) ? profile.weapon : 'none',
     });
     room.addPlayer(player);
+    console.log(`[join] ${player.name} (${socket.id.slice(0, 5)}) -> ${room.id} (${room.count} players, state=${room.state})`);
     ack && ack({ ok: true, roomId: room.id });
   });
 
@@ -181,7 +186,8 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (reason) => {
+    console.log(`[conn] disconnected ${socket.id.slice(0, 5)} (${reason})`);
     persist();
     if (room) room.removePlayer(socket.id);
     socketWallet.delete(socket.id);
