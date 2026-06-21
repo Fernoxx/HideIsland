@@ -30,7 +30,9 @@ module.exports = {
   TREASURE_MAX_GEMS: 250,
 
   // Match flow.
-  MIN_PLAYERS_TO_START: 2, // set higher (e.g. 5) for production lobbies
+  // Minimum players before a match can start. Override with the MIN_PLAYERS env
+  // var (e.g. set MIN_PLAYERS=1 on your host to test solo in a single tab).
+  MIN_PLAYERS_TO_START: Math.max(1, parseInt(process.env.MIN_PLAYERS, 10) || 2),
   MAX_PLAYERS: 10,
   COUNTDOWN_SECONDS: 5,
   MATCH_TIME_LIMIT_SECONDS: 240, // safety: end match if nobody finds treasure
