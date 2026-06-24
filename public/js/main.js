@@ -24,19 +24,20 @@ const state = {
   gems: 0,
 };
 
-// ---- Lazy 3D renderer ----
-// Dynamically imported so a three.js load error can't break the core UI.
+// ---- Renderer ----
+// 2D top-down pixel renderer. Loaded lazily and guarded so a render error
+// can never break the core UI (login, lobby, betting, shop).
 let r3d = null;
 let r3dTried = false;
 async function ensureRenderer() {
   if (r3d || r3dTried) return r3d;
   r3dTried = true;
   try {
-    r3d = await import('./render3d.js');
+    r3d = await import('./render2d.js');
     r3d.initRenderer(canvas);
-    console.log('[hide-island] 3D renderer ready');
+    console.log('[hide-island] 2D renderer ready');
   } catch (e) {
-    console.error('[hide-island] 3D renderer failed to load:', e);
+    console.error('[hide-island] renderer failed to load:', e);
     r3d = null; // game still runs with the 2D minimap only
   }
   return r3d;
